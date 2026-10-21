@@ -12,7 +12,7 @@
 |---|---|---|
 | D1 | Scope: all acceptance criteria AC-01 to AC-36 | User answer |
 | D2 | Base: `vercel/chatbot` template reworked inside `app/` | User answer, ADR-005 |
-| D3 | Model: `xiaomi/mimo-v2.6-flash` via OpenRouter (`LLM_MODEL`) | User answer, spike test HTTP 200 |
+| D3 | Model: `openai/gpt-6-luna` via OpenRouter (`LLM_MODEL`). Spike: HTTP 200, schema-valid output, damage detected; uses reasoning tokens (265 in the spike), so latency must be measured against the 30 s limit. `xiaomi/mimo-v2.6-flash` was the first candidate and stays as fallback | User answer, spike test HTTP 200 |
 | D4 | Brand: neutral tokens from `design-guidelines.md`; no x-kom logo or x-kom font | User answer; license note in the guideline |
 | D5 | Agents: `fe-developer`, `be-developer`, `qa-engineer` in `.claude/agents/` | User answer |
 | D6 | Commits: one local commit per completed TDD step, format `Area: summary`. No push from the agents. Push is done by the user with `! ` | User answer, AGENTS.md, sandbox policy |
@@ -208,7 +208,7 @@ Do not: push, read app/.env.local, print keys, edit other owners' files
 | R1 | Live model tests need `OPENROUTER_API_KEY`. Agents are denied reading `app/.env.local`. | Capture of real responses (TAC-002-05) and E2E with the real model cannot run from agents | Captures and E2E are run by the user with `! ` or from a terminal where the key is set; agents consume the stored captures. Agents never read the key file |
 | R2 | Sandbox classifier blocks some actions: git push, settings edits (self-modification), and possibly data-related commands | Steps stop | Agents report the block and stop; the user decides. Commits stay local |
 | R3 | Template removal (S0.5 to S0.9) breaks build in the middle | Working state lost | One removal per commit; tsc and build must pass before each commit; if not, the step is split further |
-| R4 | `mimo-v2.6-flash` may be weak in Polish or structured output on real photos | Quality of decision | Test in S4.2 with synthetic cases; fallback to `mimo-v2.6-pro` by changing `LLM_MODEL` only |
+| R4 | `openai/gpt-6-luna` may exceed the 30 s limit (reasoning tokens) or be weak in Polish on real photos | Timeouts (AC-25, section 4.5) and decision quality | Measure latency per request in S4.2 and S4.3 with synthetic cases; if too slow, fallback to `xiaomi/mimo-v2.6-flash` by changing `LLM_MODEL` only |
 | R5 | Image library choice (S2.3) and Vercel body limit (OI-000-1) | Upload size and compression | Context7 check before S2.3; body limit check before deployment, not blocking for local PoC |
 | R6 | Retention of data at OpenRouter (OI-000-2) | Real customer data not allowed | Synthetic data only (PRD R6) |
 
